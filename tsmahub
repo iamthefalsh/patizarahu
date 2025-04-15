@@ -1,19 +1,40 @@
 
--- Patinzera UI Library
 local Library = {}
 
+-- Protection against multiple instances
+if getgenv().PatinzeraUILoaded then
+    return getgenv().PatinzeraUI
+end
+
 function Library:CreateWindow(title)
+    -- Create main GUI
     local ScreenGui = Instance.new("ScreenGui")
+    if syn then
+        syn.protect_gui(ScreenGui)
+    end
     ScreenGui.Name = "PatinzeraUI"
     ScreenGui.Parent = game:GetService("CoreGui")
     
+    -- Make GUI
     local MainFrame = Instance.new("Frame")
     MainFrame.Name = "MainFrame"
     MainFrame.Size = UDim2.new(0, 400, 0, 300)
     MainFrame.Position = UDim2.new(0.5, -200, 0.5, -150)
     MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     MainFrame.BorderSizePixel = 0
+    MainFrame.Active = true
+    MainFrame.Draggable = true
     MainFrame.Parent = ScreenGui
+    
+    -- Title bar
+    local TitleBar = Instance.new("TextLabel")
+    TitleBar.Size = UDim2.new(1, 0, 0, 30)
+    TitleBar.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    TitleBar.TextColor3 = Color3.fromRGB(255, 255, 255)
+    TitleBar.Text = title
+    TitleBar.Font = Enum.Font.GothamBold
+    TitleBar.TextSize = 14
+    TitleBar.Parent = MainFrame
     
     local Container = Instance.new("ScrollingFrame")
     Container.Name = "Container"
@@ -33,6 +54,8 @@ function Library:CreateWindow(title)
         Button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
         Button.TextColor3 = Color3.fromRGB(255, 255, 255)
         Button.Text = text
+        Button.Font = Enum.Font.Gotham
+        Button.TextSize = 14
         Button.Parent = Container
         Button.MouseButton1Click:Connect(callback)
     end
@@ -46,15 +69,28 @@ function Library:CreateWindow(title)
         Toggle.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
         Toggle.TextColor3 = Color3.fromRGB(255, 255, 255)
         Toggle.Text = text
+        Toggle.Font = Enum.Font.Gotham
+        Toggle.TextSize = 14
         Toggle.Parent = Container
+        
+        local Indicator = Instance.new("Frame")
+        Indicator.Size = UDim2.new(0, 20, 0, 20)
+        Indicator.Position = UDim2.new(1, -25, 0.5, -10)
+        Indicator.BackgroundColor3 = enabled and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
+        Indicator.Parent = Toggle
         
         Toggle.MouseButton1Click:Connect(function()
             enabled = not enabled
+            Indicator.BackgroundColor3 = enabled and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
             callback(enabled)
         end)
     end
     
     return window
 end
+
+-- Set global reference
+getgenv().PatinzeraUILoaded = true
+getgenv().PatinzeraUI = Library
 
 return Library
