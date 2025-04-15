@@ -1,96 +1,72 @@
+-- Patinzera UI Library
+local Library = {
+    Name = "Patinzera",
+    Version = "1.0.0"
+}
 
-local Library = {}
+-- Configs
+Library.Config = {
+    WindowSize = {X = 600, Y = 400},
+    Theme = {
+        Background = {30, 30, 30},
+        Foreground = {255, 255, 255},
+        Accent = {0, 170, 255}
+    }
+}
 
--- Protection against multiple instances
-if getgenv().PatinzeraUILoaded then
-    return getgenv().PatinzeraUI
-end
-
+-- Main window creator
 function Library:CreateWindow(title)
-    -- Create main GUI
-    local ScreenGui = Instance.new("ScreenGui")
-    if syn then
-        syn.protect_gui(ScreenGui)
-    end
-    ScreenGui.Name = "PatinzeraUI"
-    ScreenGui.Parent = game:GetService("CoreGui")
-    
-    -- Make GUI
-    local MainFrame = Instance.new("Frame")
-    MainFrame.Name = "MainFrame"
-    MainFrame.Size = UDim2.new(0, 400, 0, 300)
-    MainFrame.Position = UDim2.new(0.5, -200, 0.5, -150)
-    MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    MainFrame.BorderSizePixel = 0
-    MainFrame.Active = true
-    MainFrame.Draggable = true
-    MainFrame.Parent = ScreenGui
-    
-    -- Title bar
-    local TitleBar = Instance.new("TextLabel")
-    TitleBar.Size = UDim2.new(1, 0, 0, 30)
-    TitleBar.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    TitleBar.TextColor3 = Color3.fromRGB(255, 255, 255)
-    TitleBar.Text = title
-    TitleBar.Font = Enum.Font.GothamBold
-    TitleBar.TextSize = 14
-    TitleBar.Parent = MainFrame
-    
-    local Container = Instance.new("ScrollingFrame")
-    Container.Name = "Container"
-    Container.Size = UDim2.new(1, -20, 1, -40)
-    Container.Position = UDim2.new(0, 10, 0, 35)
-    Container.BackgroundTransparency = 1
-    Container.ScrollBarThickness = 4
-    Container.Parent = MainFrame
-    
     local window = {}
-    
-    function window:Button(text, callback)
-        local Button = Instance.new("TextButton")
-        Button.Name = "Button"
-        Button.Size = UDim2.new(1, 0, 0, 30)
-        Button.Position = UDim2.new(0, 0, 0, #Container:GetChildren() * 35)
-        Button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-        Button.TextColor3 = Color3.fromRGB(255, 255, 255)
-        Button.Text = text
-        Button.Font = Enum.Font.Gotham
-        Button.TextSize = 14
-        Button.Parent = Container
-        Button.MouseButton1Click:Connect(callback)
+    window.title = title
+    window.elements = {}
+
+    -- Element creators
+    function window:AddButton(text, callback)
+        local button = {
+            type = "button",
+            text = text,
+            callback = callback
+        }
+        table.insert(self.elements, button)
+        return button
     end
-    
-    function window:Toggle(text, default, callback)
-        local enabled = default or false
-        local Toggle = Instance.new("TextButton")
-        Toggle.Name = "Toggle"
-        Toggle.Size = UDim2.new(1, 0, 0, 30)
-        Toggle.Position = UDim2.new(0, 0, 0, #Container:GetChildren() * 35)
-        Toggle.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-        Toggle.TextColor3 = Color3.fromRGB(255, 255, 255)
-        Toggle.Text = text
-        Toggle.Font = Enum.Font.Gotham
-        Toggle.TextSize = 14
-        Toggle.Parent = Container
-        
-        local Indicator = Instance.new("Frame")
-        Indicator.Size = UDim2.new(0, 20, 0, 20)
-        Indicator.Position = UDim2.new(1, -25, 0.5, -10)
-        Indicator.BackgroundColor3 = enabled and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
-        Indicator.Parent = Toggle
-        
-        Toggle.MouseButton1Click:Connect(function()
-            enabled = not enabled
-            Indicator.BackgroundColor3 = enabled and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
-            callback(enabled)
-        end)
+
+    function window:AddToggle(text, default, callback)
+        local toggle = {
+            type = "toggle",
+            text = text,
+            state = default or false,
+            callback = callback
+        }
+        table.insert(self.elements, toggle)
+        return toggle
     end
-    
+
+    function window:AddSlider(text, min, max, default, callback)
+        local slider = {
+            type = "slider",
+            text = text,
+            min = min,
+            max = max,
+            value = default,
+            callback = callback
+        }
+        table.insert(self.elements, slider)
+        return slider
+    end
+
+    -- Section creator
+    function window:CreateSection(title)
+        local section = {
+            type = "section",
+            title = title,
+            elements = {}
+        }
+        table.insert(self.elements, section)
+        return section
+    end
+
     return window
 end
-
--- Set global reference
-getgenv().PatinzeraUILoaded = true
-getgenv().PatinzeraUI = Library
 
 return Library
